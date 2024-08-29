@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLoading } from '../hooks/useLoading';
 import { updateEmail, updateName, updatePassword } from '../services/authService';
-import { AlertType, Errors } from '../types/types';
+import { AlertType } from '../types/types';
 import { Alert } from '../components';
 import PasswordTracker from '../components/PasswordTracker';
 import { validatePasswordRequirements } from '../utils/functions';
