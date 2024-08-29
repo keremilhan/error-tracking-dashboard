@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const { BadRequestError, UnauthenticatedError } = require('../errors');
+const User = require("../models/User");
+const { BadRequestError, UnauthenticatedError } = require("../errors");
 
 /**
  * Registers a new user with the provided user data.
@@ -10,13 +10,13 @@ const { BadRequestError, UnauthenticatedError } = require('../errors');
  * @returns {Promise<Object>} A promise that resolves to an object containing user email, name, and accessToken.
  * @throws {BadRequestError} If user data is not provided.
  */
-const registerUser = async userData => {
-    if (!userData) {
-        throw new BadRequestError('User data is required');
-    }
-    const user = await User.create({ ...userData });
-    const token = user.createJWT();
-    return { email: user.email, name: user.name, accessToken: token };
+const registerUser = async (userData) => {
+  if (!userData) {
+    throw new BadRequestError("User data is required");
+  }
+  const user = await User.create({ ...userData });
+  const token = user.createJWT();
+  return { email: user.email, name: user.name, accessToken: token };
 };
 
 /**
@@ -32,22 +32,87 @@ const registerUser = async userData => {
  * @throws {UnauthenticatedError} If no user is found with the provided email or if password is incorrect.
  */
 const loginUser = async (email, password) => {
-    if (!email || !password) {
-        throw new BadRequestError('Please provide email and password');
-    }
+  if (!email || !password) {
+    throw new BadRequestError("Please provide email and password");
+  }
 
-    const user = await User.findOne({ email });
-    if (!user) {
-        throw new UnauthenticatedError('Invalid Credentials');
-    }
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new UnauthenticatedError("Invalid Credentials");
+  }
 
-    const isPasswordCorrect = await user.comparePasswords(password);
-    if (!isPasswordCorrect) {
-        throw new UnauthenticatedError('Invalid Credentials: password');
-    }
+  const isPasswordCorrect = await user.comparePasswords(password);
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError("Invalid Credentials: password");
+  }
 
-    const token = user.createJWT();
-    return { email: user.email, name: user.name, accessToken: token };
+  const token = user.createJWT();
+  return { email: user.email, name: user.name, accessToken: token };
 };
 
-module.exports = { registerUser, loginUser };
+const findUserByEmail = async (email) => {
+  if (!email) {
+    throw new BadRequestError("Please provide email");
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new UnauthenticatedError("Invalid Credentials");
+  }
+
+  return user;
+};
+
+const changeName = async (email, name) => {
+  if (!email || !name) {
+    throw new BadRequestError("Please provide email and name");
+  }
+
+  const user = await findUserByEmail(email);
+
+  user.name = name;
+
+  await user.save();
+
+  return user.name;
+};
+
+const changeEmail = async (email, newEmail) => {
+  if (!email || !newEmail) {
+    throw new BadRequestError("Please provide email");
+  }
+
+  const user = await findUserByEmail(email);
+
+  user.email = newEmail;
+
+  await user.save();
+
+  return user.email;
+};
+
+const changePassword = async (email, password, newPassword) => {
+  if (!password || !newPassword) {
+    throw new BadRequestError("Please provide password");
+  }
+
+  const user = await findUserByEmail(email);
+
+  const isPasswordCorrect = await user.comparePasswords(password);
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError("Invalid Credentials: password");
+  }
+
+  user.password = newPassword;
+
+  await user.save();
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  findUserByEmail,
+  changeName,
+  changeEmail,
+  changePassword,
+};

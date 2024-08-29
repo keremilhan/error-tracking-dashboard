@@ -16,6 +16,7 @@ export interface AuthContextType {
     authState: AuthState;
     login: (userData: AuthState) => void;
     logout: () => void;
+    update: (userData: AuthState) => void;
 }
 
 export interface LoadingContextType {
