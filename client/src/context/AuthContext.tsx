@@ -20,6 +20,7 @@ const initialAuthContext: AuthContextType = {
     authState: getInitialState(),
     login: () => {},
     logout: () => {},
+    update: () => {},
 };
 
 // Create context
@@ -46,6 +47,12 @@ const authReducer = (state: AuthState, action: { type: string; payload?: AuthSta
                 accessToken: '',
                 email: '',
             };
+        case 'UPDATE':
+            saveUserToLocalStorage({ ...state, ...action.payload });
+            return {
+                ...state,
+                ...action.payload,
+            };
         default:
             return state;
     }
@@ -63,11 +70,16 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         dispatch({ type: 'LOGOUT' });
     };
 
+    const update = (userData: AuthState) => {
+        dispatch({ type: 'UPDATE', payload: userData });
+    };
+
     // Value passed to provider should match the context type
     const contextValue: AuthContextType = {
         authState,
         login,
         logout,
+        update,
     };
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
